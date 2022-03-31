@@ -13,18 +13,20 @@ describe('top-secret routes', () => {
     pool.end();
   });
 
-  it('signs up a user', async () => {
-    const newUser = { email: 'kyra@email.com', password: 'totallysecretpassword' };
-
+  it('creates a user', async () => {
     const res  = await request(app)
       .post('/api/v1/users')
-      .send(newUser);
+      .send({ email: 'kyra@email.com', password: 'totallysecretpassword',
+      });
 
-    expect(res.body).toEqual({ id: expect.any(String), email: 'kyra@email.com' });
+    expect(res.body).toEqual({ 
+      id: expect.any(String), 
+      email: 'kyra@email.com', 
+    });
   });
 
   it('signs in a user', async () => {
-    const user = await UserService.create({
+    const user = await UserService.signUp({
       email: 'kyra@email.com',
       password: 'totallysecretpassword',
     });
@@ -41,5 +43,8 @@ describe('top-secret routes', () => {
       user,
     });
   });
-  
+
+  // it('should sign out a user', async () => {
+  //   let user = await
+  // });
 });
