@@ -44,7 +44,23 @@ describe('top-secret routes', () => {
     });
   });
 
-  // it('should sign out a user', async () => {
-  //   let user = await
-  // });
+  it('should sign out a user', async () => {
+    let user = await UserService.signUp({
+      email: 'kyra@email.com',
+      password: 'totallysecretpassword',
+    });
+
+    user = await UserService.signIn({
+      email: 'kyra@email.com',
+      password: 'totallysecretpassword',
+    });
+
+    const res = await request(app)
+      .delete('/api/v1/users/sessions')
+      .send(user);
+
+    expect(res.body).toEqual({
+      message: 'Successfully signed out!'
+    });
+  });
 });
