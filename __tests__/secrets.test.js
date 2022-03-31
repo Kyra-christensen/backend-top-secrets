@@ -14,13 +14,22 @@ describe('top-secret routes', () => {
   });
 
   it('should return an error if secrets are accessed without a logged in user', async () => {
-    const res = await request(app)
-      .get('/api/v1/secrets');
+    const agent = request.agent(app);
+
+    await UserService.signUp({
+      email: 'kyra@defense.gov',
+      password: 'secretpassword',
+    });
+    
+    const res = await agent.post('/api/v1/secrets').send({
+      title: 'Top Secret',
+      description: 'redacted',
+      userId: expect.any(String),
+    });
+
     expect(res.body).toEqual({
+      message: 'You must be signed in',
       status: 401,
-      message: 'Log in to access these secrets.'
     });
   });
-
-  
 });
