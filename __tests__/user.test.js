@@ -24,16 +24,22 @@ describe('top-secret routes', () => {
   });
 
   it('signs in a user', async () => {
-    const userData = { email: 'kyra@email.com', password: 'totallysecretpassword' };
+    const user = await UserService.create({
+      email: 'kyra@email.com',
+      password: 'totallysecretpassword',
+    });
 
-    const user = await UserService.create(userData);
-
-    const agent = request.agent(app);
-
-    const res = await agent
+    const res = await request(app)
       .post('/api/v1/users/sessions')
-      .send(userData);
-    
-    expect(res.body).toEqual({ message: 'You signed in successfully!', user });
+      .send({
+        email: 'kyra@email.com',
+        password: 'totallysecretpassword',
+      });
+
+    expect(res.body).toEqual({
+      message: 'Successfully signed in!',
+      user,
+    });
   });
+  
 });
