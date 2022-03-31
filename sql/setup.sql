@@ -15,9 +15,4 @@ CREATE TABLE secrets (
   description TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-
-INSERT INTO 
-  secrets (title, description)
-  VALUES
-    ('Top Secret: Kyras Cats', 'Kyras cats are the cutest cats ever')
     

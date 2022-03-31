@@ -33,28 +33,72 @@ describe('top-secret routes', () => {
     });
   });
 
-  it('should allow an authenticated user to post a secret', async () => {
+  it('allows logged in users to create new secrets', async () => {
+    const user = {
+      email: 'kyra@email.com',
+      password: 'totallysecretpassword'
+    };
+
+    const expected = {
+      id: expect.any(String),
+      title: 'new secret',
+      description: 'cats are amazing',
+      createdAt: expect.any(String)
+    };
+
+    await UserService.signIn(user);
+
     const agent = request.agent(app);
 
-    await UserService.signUp({
-      email: 'kyra@defense.gov',
-      password: 'secretpassword',
-    });
-
-    await agent.post('/api/v1/users/sessions').send({
-      email: 'kyra@defense.gov',
-      password: 'secretpassword',
-    });
+    let res = await agent
+      .get('/api/v1/secrets');
     
-    const res = await agent.post('/api/v1/secrets').send({
-      title: 'Top Secret',
-      description: 'redacted',
+    expect(res.body).toEqual({ 
+      message: 'You must be signed in', status: 401 
     });
 
-    expect(res.body).toEqual({
-      id: expect.any(String),
-      title: 'Top Secret',
-      description: 'redacted',
+    await agent
+      .post('/api/v1/users/sessions')
+      .send(user);
+
+    res = await agent
+      .post('/api/v1/secrets')
+      .send(expected);
+
+    expect(res.body).toEqual(expected);
+  });
+
+  it('allows logged in users to view secrets', async () => {
+    const user = {
+      email: 'kyra@email.com',
+      password: 'totallysecretpassword'
+    };
+
+    await UserService.signIn(user);
+
+    const agent = request.agent(app);
+
+    let res = await agent
+      .get('/api/v1/secrets');
+    
+    expect(res.body).toEqual({ 
+      message: 'You must be signed in', status: 401 
     });
+
+    await agent
+      .post('/api/v1/users/sessions')
+      .send(user);
+
+    res = await agent
+      .get('/api/v1/secrets');
+
+    const expected = [{
+      id: expect.any(String),
+      title: 'big secret',
+      description: 'earth is round',
+      createdAt: expect.any(String)
+    }];
+
+    expect(res.body).toEqual(expected);
   });
 });
