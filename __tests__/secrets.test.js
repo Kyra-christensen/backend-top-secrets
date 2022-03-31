@@ -13,7 +13,7 @@ describe('top-secret routes', () => {
     pool.end();
   });
 
-  it('should return an error if secrets are accessed without a logged in user', async () => {
+  it('should not allow unauthenticated user to create an secret', async () => {
     const agent = request.agent(app);
 
     await UserService.signUp({
@@ -30,6 +30,31 @@ describe('top-secret routes', () => {
     expect(res.body).toEqual({
       message: 'You must be signed in',
       status: 401,
+    });
+  });
+
+  it('should allow an authenticated user to post a secret', async () => {
+    const agent = request.agent(app);
+
+    await UserService.signUp({
+      email: 'kyra@defense.gov',
+      password: 'secretpassword',
+    });
+
+    await agent.post('/api/v1/users/sessions').send({
+      email: 'kyra@defense.gov',
+      password: 'secretpassword',
+    });
+    
+    const res = await agent.post('/api/v1/secrets').send({
+      title: 'Top Secret',
+      description: 'redacted',
+    });
+
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      title: 'Top Secret',
+      description: 'redacted',
     });
   });
 });
