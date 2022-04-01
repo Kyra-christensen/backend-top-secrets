@@ -31,37 +31,20 @@ describe('top-secret routes', () => {
     expect(res.body).toEqual({ createdAt: expect.any(String), ...newSecret, id: expect.any(String) });
   });
 
-  // it.skip('allows logged in users to view secrets', async () => {
-  //   const user = {
-  //     email: 'kyra@email.com',
-  //     password: 'totallysecretpassword'
-  //   };
+  it('allows logged in users to view secrets', async () => {
+    const agent = request.agent(app);
 
-  //   await UserService.signIn(user);
+    await agent
+      .post('/api/v1/users')
+      .send({ email: 'kyra@defense.gov', password: 'secretpassword' });
 
-  //   const agent = request.agent(app);
+    await agent
+      .post('/api/v1/users/sessions')
+      .send({ email: 'kyra@defense.gov', password: 'secretpassword' });
 
-  //   let res = await agent
-  //     .get('/api/v1/secrets');
-    
-  //   expect(res.body).toEqual({ 
-  //     message: 'You must be signed in', status: 401 
-  //   });
+    const res = await agent
+      .get('/api/v1/secrets');
 
-  //   await agent
-  //     .post('/api/v1/users/sessions')
-  //     .send(user);
-
-  //   res = await agent
-  //     .get('/api/v1/secrets');
-
-  //   const expected = [{
-  //     id: expect.any(String),
-  //     title: 'big secret',
-  //     description: 'earth is round',
-  //     createdAt: expect.any(String)
-  //   }];
-
-  //   expect(res.body).toEqual(expected);
-  // });
+    expect(res.body).toEqual([{ createdAt: expect.any(String), description: 'Kyras cats are cute!', title: 'Top Secret', id: expect.any(String) }]);
+  });
 });
